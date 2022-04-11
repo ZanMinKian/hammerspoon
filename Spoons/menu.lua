@@ -17,6 +17,7 @@ local function getIcon(name)
   if name == 'Terminal' then return '~/.hammerspoon/Spoons/Terminal.png' end
   if name == 'Activity Monitor' then return '~/.hammerspoon/Spoons/Activity Monitor.png' end
   if name == 'Notes' then return '~/.hammerspoon/Spoons/Notes.png' end
+  return '~/.hammerspoon/Spoons/unknown.png'
 end
 
 local function length(arr)
@@ -28,7 +29,6 @@ local function length(arr)
 end
 
 function setup(image, app, path, tooltip)
-  if not image then image = '~/.hammerspoon/Spoons/utools_on.png' end
   local icon = hs.image.imageFromPath(image):setSize({h=22, w=22})
   return hs.menubar.new():setIcon(icon, false):setTooltip(tooltip):setMenu(function()
     if rightClicking then
@@ -56,10 +56,10 @@ ms = {}
 watcher = hs.application.watcher.new(function(appName, eventType, appInstance)
   if eventType ~= hs.application.watcher.launching and eventType ~= hs.application.watcher.activated and eventType ~= hs.application.watcher.terminated then return end
   _, dockAppNames = hs.osascript.applescript('tell application "Finder"\n get the name of every process whose visible is true\n end tell')
+  if not dockAppNames then return end
   for i, v in pairs(dockAppNames) do
     if v == 'Electron' then dockAppNames[i] = 'Visual Studio Code' end
   end
-  table.sort(dockAppNames)
 
   apps = {}
   for i, app in pairs(hs.application.runningApplications()) do
@@ -95,7 +95,13 @@ watcher = hs.application.watcher.new(function(appName, eventType, appInstance)
     v:delete()
   end
   ms = {}
+  local names = {}
   for name, path in pairs(dockerApps) do
+    table.insert(names, name)
+  end
+  table.sort(names)
+  for i, name in pairs(names) do
+    local path = dockerApps[name]
     table.insert(ms, setup(getIcon(name), apps[path], path, name))
   end
 end)
