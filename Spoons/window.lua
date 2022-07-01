@@ -159,3 +159,8 @@ hs.hotkey.bind({"ctrl", "alt", "cmd"}, "c", function()
   hs.window.focusedWindow():centerOnScreen()
 end)
 
+hs.hotkey.bind({"ctrl", "alt", "cmd"}, "n", function()
+  local screen = hs.window.focusedWindow():screen():next()
+  hs.window.focusedWindow():moveToScreen(screen)
+end)
+
